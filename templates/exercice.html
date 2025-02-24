@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load i18n %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+      {% for exercice in google_sheet_list %}
+        {% if exercice.Lien == link_exercice %}
+        <h2>{{exercice.Titre}}</h2>
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                <ul>
+                  <li><strong>{%trans "Description :"%}</strong> {{ exercice.Description }}</li>
+                  <li><strong>{%trans "Module :"%}</strong> {{ exercice.Code_Module }}</li>
+                  <li><strong>{%trans "Durée estimée :"%}</strong> {{ exercice.Durée_estimée }}</li>
+                  <li><strong>{%trans "Lien vers le document de formation:"%}</strong> <a href="{{ exercice.Lien }}" target="_blank">Voir le document</a></li>
+                  <li><strong>{%trans "État :"%}</strong> {{ exercice.Etat }}</li>
+                  {% if exercice.Date_début_prév %}
+                    <li><strong>{%trans "Date de début prévisionnelle :"%}</strong> {{ exercice.Date_début_prév }}</li>
+                  {% endif %}
+                  {% if exercice.Date_début_réelle %}
+                    <li><strong>{%trans "Date de début réelle :"%}</strong> {{ exercice.Date_début_réelle }}</li>
+                  {% endif %}
+                  {% if exercice.Date_fin_prév %}
+                    <li><strong>{%trans "Date de fin prévisionnelle :"%}</strong> {{ exercice.Date_fin_prév }}</li>
+                  {% endif %}
+                  {% if exercice.Date_fin_réelle %}
+                    <li><strong>{%trans "Date de fin réelle :"%}</strong> {{ exercice.Date_fin_réelle }}</li>
+                  {% endif %}
+                  <li><strong>{%trans "Type d'exercice :"%}</strong> {{ exercice.Type }}</li>
+                  <li>
+                    <strong>{%trans "Commentaire stagiaire :"%}</strong> 
+                    <form method="post" class="d-flex">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="Soumettre">
+                        <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                        <input type="hidden" name="linkModule" value="{{ module_link }}">
+                        <textarea name="commentaire_stagiaire" class="form-control" style="width: 100%;">{{ exercice.Commentaire_stagiaire }}</textarea>
+                        <button type="submit" class="btn btn-primary btn-sm ml-2">{%trans "Soumettre"%}</button>
+                    </form>
+                  </li>
+                  <li><strong>{%trans "Commentaire feed-back du coach :"%}</strong> {{ exercice.Feed_Back_du_coach }}</li>
+                </ul>
+                
+                <!-- Boutons Commencer et Terminer -->
+                <div class="d-flex justify-content-around" style="margin-top: 50px;">
+                  {% if exercice.Date_début_prév and exercice.Date_fin_prév %}
+                    {% if exercice.Etat != "A faire" %}
+                      <!-- Si l'exercice est en cours, désactiver et griser le bouton "Commencer" -->
+                      <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="start">
+                        <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                        <input type="hidden" name="linkModule" value="{{ module_link }}">
+                        <button class="btn btn-primary" type="submit" id="startExercise" disabled style="cursor: not-allowed;">{%trans "Commencer"%}</button>
+                      </form>
+                    {% else %}
+                      <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="start">
+                        <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                        <input type="hidden" name="linkModule" value="{{ module_link }}">
+                        <button class="btn btn-primary" type="submit" id="startExercise">Commencer</button>
+                      </form>
+                    {% endif %}
+                {% endif %}
+                {% if exercice.Etat == "Terminé" %}
+                    <!-- Si l'exercice est terminé, désactiver et griser le bouton "Terminer" -->
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="finish">
+                      <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                      <input type="hidden" name="linkModule" value="{{ module_link }}">
+                      <button class="btn btn-primary" type="submit" id="finishExercise" disabled style="cursor: not-allowed;">{%trans "Terminer"%}</button>
+                    </form>
+    
+                  {%else%}
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="finish">
+                      <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                      <input type="hidden" name="linkModule" value="{{ module_link }}">
+                      <button class="btn btn-primary" type="submit" id="finishExercise">{%trans "Terminer"%}</button>
+                    </form>
+                  {%endif%}
+
+
+                </div>
+
+                <div class="d-flex justify-content-end" style="margin-top: 20px;">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="return_to_todo">
+                        <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                        <input type="hidden" name="linkModule" value="{{ module_link }}">
+                        <!-- Condition pour désactiver le bouton lorsque l'exercice est à l'état "À faire" -->
+                        {% if exercice.Etat == "À faire" %}
+                            <button class="btn btn-primary" type="submit" id="returnToTodo" disabled>{%trans "Revenir à l'état 'À faire' "%}</button>
+                        {% else %}
+                            <button class="btn btn-primary" type="submit" id="returnToTodo">{%trans "Revenir à l'état 'À faire' "%}</button>
+                        {% endif %}
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="return_to_in_progress">
+                        <input type="hidden" name="linkExercice" value="{{ exercice.Lien }}">
+                        <input type="hidden" name="linkModule" value="{{ module_link }}">
+                        <!-- Condition pour désactiver le bouton lorsque l'exercice est à l'état "En cours" -->
+                        {% if exercice.Etat == "En cours" %}
+                            <button class="btn btn-primary" type="submit" id="returnToInProgress" disabled>{%trans "Revenir à l'état 'En cours' "%}</button>
+                        {% else %}
+                            <button class="btn btn-primary" type="submit" id="returnToInProgress">{%trans "Revenir à l'état 'En cours' "%}</button>
+                        {% endif %}
+                    </form>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

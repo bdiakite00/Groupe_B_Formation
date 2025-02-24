@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>{% trans "Liste des coachs" %}</h3>
+    {% for coach_data in coachs_data %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ coach_data.lien_photo_coach }}" alt="Photo du coach" class="img-fluid rounded-start">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title"><strong>{{ coach_data.nom_du_coach }}</strong></h5>
+                            <p class="card-text">{{ coach_data.description_coach }}</p>
+                            <p class="card-text"><strong>{% trans "Site internet :" %}</strong> <a href="{{ coach_data.lien_site_internet }}">{{ coach_data.lien_site_internet }}</a></p>
+                            <p class="card-text"><strong>{% trans "Message pour la publicité :" %}</strong> {{ coach_data.message_publicite_coach }}</p>
+                            <p class="card-text"><strong>{% trans "Email :" %}</strong> <a href="mailto:{{ coach_data.email_coach }}">{{ coach_data.email_coach }}</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if not forloop.last %}
+    <hr> <!-- Ajoute une ligne horizontale sauf pour le dernier coach -->
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock content %}
