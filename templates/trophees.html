@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+<style>
+    .program-container {
+        margin-bottom: 30px;
+    }
+    .module-card {
+        width: 300px;
+        margin-bottom: 30px;
+    }
+    
+    .module-card img {
+        max-width: 300px;
+        max-height: 150px;
+        width: auto;
+        height: auto;
+    }
+    .progress-container {
+        position: relative;
+        height: 25px;
+    }
+    .progress-label {
+        position: absolute;
+        bottom: 4px;
+        right: 0;
+        margin-top: 2px;
+        margin-right: 5px;
+    }
+    .acquis-text {
+        margin-left: auto;
+        font-weight: bolder;
+    }
+    .challenge-container {
+        margin-top: 30px;
+    }
+    .challenge-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ccc;
+    }
+    .challenge-title {
+        flex-grow: 1;
+    }
+    .challenge-status {
+        flex-shrink: 0;
+        margin-left: 20px;
+    }
+    ul {
+        list-style-type: none; 
+        padding: 0;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">{% trans "Progression des Programmes" %}</h1>
+        {% for program in all_programs_progress %}
+            <div class="program-container">
+                <h2>{{ program.program_name }}</h2>
+                <div class="row">
+                    {% for module in program.modules_progress %}
+                        <div class="col-sm-4">
+                            <div class="card module-card">
+                                <img src="{{ module.module_image }}" class="card-img-top" alt="{{ module.module_name }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ module.module_name }}</h5>
+                                    {% if module.progress_percentage == 100 %}
+                                        <span class="acquis-text">{% trans "Module Acquis !" %}</span>
+                                    {% endif %}
+                                    <div class="progress-container">
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ module.progress_percentage }}%;" aria-valuenow="{{ module.progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="progress-label">{{ module.progress_percentage }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        <div class="challenge-container">
+            <h2>{% trans "Liste des défis" %}</h2>
+            <ul>
+                {% for challenge in challenges %}
+                    <li class="challenge-item">
+                        <span class="challenge-title">{{ challenge.module_code }} - {{ challenge.challenge_name }}</span>
+                        <span class="challenge-status">{{ challenge.status }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+{% endblock content %}

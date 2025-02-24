@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
+{% load i18n %} 
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if google_sheet_list %}
+                <div class="accordion" id="accordionPrograms">
+                    {% for program in google_sheet_list %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                                    {% trans "Programme" %}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionPrograms">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        {% for key, value in program.items %}
+                                            {% if key == "Lien vers le fichier Google Sheet du Programme" %}
+                                                <li class="list-group-item">
+                                                    <form method="post">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="url_module" value="{{ value }}">
+                                                        <button type="submit" class="btn btn-primary">{% trans "Soumettre" %}</button>
+                                                    </form>
+                                                </li>
+                                            {% else %}
+                                                <li class="list-group-item"><strong>{{ key }}:</strong> {{ value }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    <p class="text-center">{% trans "Aucun programme trouvé." %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% block content_sheet_form %}{% endblock content_sheet_form %}
+{% endblock content %}
